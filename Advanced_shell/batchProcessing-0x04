@@ -1,0 +1,17 @@
+#!/bin/bash
+
+POKEMONS=(bulbasaur ivysaur venusaur charmander charmeleon)
+mkdir -p pokemon_data
+
+fetch_parallel() {
+    NAME=$1
+    curl -s "https://pokeapi.co/api/v2/pokemon/$NAME" -o "pokemon_data/${NAME}_parallel.json" \
+        || echo "Failed to fetch $NAME (parallel)" >> errors.txt
+}
+
+for NAME in "${POKEMONS[@]}"; do
+    fetch_parallel "$NAME" &
+done
+
+wait
+echo "✅ All parallel fetches complete."
