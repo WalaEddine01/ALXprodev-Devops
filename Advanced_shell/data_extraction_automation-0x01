@@ -1,15 +1,23 @@
 #!/bin/bash
+
 if [ ! -f data.json ]; then
     echo "data.json not found. Run apiAutomation-0x00 first."
     exit 1
 fi
 
+# Extract raw values
 NAME=$(jq -r '.name' data.json | sed 's/.*/\u&/')
-HEIGHT=$(jq -r '.height' data.json)
-WEIGHT=$(jq -r '.weight' data.json)
+HEIGHT_RAW=$(jq -r '.height' data.json)
+WEIGHT_RAW=$(jq -r '.weight' data.json)
 TYPE=$(jq -r '.types[0].type.name' data.json | sed 's/.*/\u&/')
 
-HEIGHT_M=$(awk "BEGIN {printf \"%.1f\", $HEIGHT/10}")
-WEIGHT_KG=$(awk "BEGIN {printf \"%.1f\", $WEIGHT/10}")
+# Convert to meters and kg
+HEIGHT_M=$(awk "BEGIN {printf \"%.1f\", $HEIGHT_RAW/10}")
+WEIGHT_KG=$(awk "BEGIN {printf \"%.1f\", $WEIGHT_RAW/10}")
 
-echo "$NAME is of type $TYPE, weighs ${WEIGHT_KG}kg, and is ${HEIGHT_M}m tall."
+# Remove trailing .0 if needed
+HEIGHT_FMT=$(echo "$HEIGHT_M" | sed 's/\.0$//')
+WEIGHT_FMT=$(echo "$WEIGHT_KG" | sed 's/\.0$//')
+
+# Print final output
+echo "$NAME is of type $TYPE, weighs ${WEIGHT_FMT}kg, and is ${HEIGHT_FMT}m tall."
